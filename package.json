@@ -1,0 +1,26 @@
+{
+    "name": "learning-lodash",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.js",
+    "scripts": {
+        "test": "mocha tests/"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/smazzoleni/learning-lodash.git"
+    },
+    "author": "",
+    "license": "ISC",
+    "bugs": {
+        "url": "https://github.com/smazzoleni/learning-lodash/issues"
+    },
+    "homepage": "https://github.com/smazzoleni/learning-lodash#readme",
+    "devDependencies": {
+        "chai": "~4.1.2",
+        "mocha": "~5.2.0"
+    },
+    "dependencies": {
+        "lodash": "~4.17.11"
+    }
+}
