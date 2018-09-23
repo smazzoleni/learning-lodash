@@ -205,6 +205,13 @@ describe('Array', () => {
             const diff = _.difference(data, 5, 6, 7);
             expect(diff).to.deep.equal(data);
         });
+
+        it('uses SameValueZero for equality comparison', () => {
+            const data = [{ x: 12 }, { x: 34 }, { x: 56 }];
+            const diff = _.difference(data, [{ x: 12 }, { x: 56 }]);
+            expect(diff).to.deep.equal(data);
+            // NOTE: use differenceWith to avoid this pitfall
+        });
     });
 
     describe('differenceBy', () => {
@@ -241,6 +248,134 @@ describe('Array', () => {
                 floorWithOneDigitPrecison,
             );
             expect(diff).to.deep.equal([1.21, 1.31]);
+        });
+    });
+
+    describe('differenceWith', () => {
+        it('accepts a comparator', () => {
+            const data = [{ x: 12 }, { x: 34 }, { x: 56 }];
+            const diff = _.differenceWith(
+                data,
+                [{ x: 12 }, { x: 56 }],
+                _.isEqual,
+            );
+            expect(diff).to.deep.equal([{ x: 34 }]);
+        });
+
+        it('comparator is useful when element structure is different', () => {
+            const data = [{ x: 12 }, { x: 34 }, { x: 56 }];
+            const diff = _.differenceWith(
+                data,
+                [{ y: 12 }, { y: 56 }],
+                (dataValue, otherValue) => dataValue.x === otherValue.y,
+            );
+            expect(diff).to.deep.equal([{ x: 34 }]);
+        });
+    });
+
+    describe('drop', () => {
+        it('creates a slice of array with n elements dropped from the beginning', () => {
+            const data = _.range(5);
+            expect(_.drop(data, 3)).to.deep.equal([3, 4]);
+        });
+
+        it('creates a slice of array with 1 element dropped from the beginning if n is omitted', () => {
+            const data = _.range(5);
+            expect(_.drop(data), 'first value (0) is dropped').to.deep.equal([
+                1,
+                2,
+                3,
+                4,
+            ]);
+        });
+
+        it('returns empty array if n >= array size', () => {
+            const data = _.range(5);
+            expect(_.drop(data, 5)).to.be.empty;
+            expect(_.drop(data, 100)).to.be.empty;
+        });
+
+        it('returns cloned array if n <= 0', () => {
+            const data = _.range(5);
+            expect(_.drop(data, 0)).to.deep.equal(data);
+            expect(_.drop(data, -10)).to.deep.equal(data);
+        });
+    });
+
+    describe('dropRight', () => {
+        it('creates a slice of array with n elements dropped from the end', () => {
+            const data = _.range(5);
+            expect(_.dropRight(data, 3)).to.deep.equal([0, 1]);
+        });
+
+        it('creates a slice of array with 1 element dropped from the end if n is omitted', () => {
+            const data = _.range(5);
+            expect(
+                _.dropRight(data),
+                'first value (0) is dropped',
+            ).to.deep.equal([0, 1, 2, 3]);
+        });
+
+        it('returns empty array if n >= array size', () => {
+            const data = _.range(5);
+            expect(_.dropRight(data, 5)).to.be.empty;
+            expect(_.dropRight(data, 100)).to.be.empty;
+        });
+
+        it('returns cloned array if n <= 0', () => {
+            const data = _.range(5);
+            expect(_.dropRight(data, 0)).to.deep.equal(data);
+            expect(_.dropRight(data, -10)).to.deep.equal(data);
+        });
+    });
+
+    describe('dropWhile', () => {
+        it('creates a slice of array excluding elements dropped from the beginning while predicate returns truthy', () => {
+            const data = [1, 2, 3, 'hello', 4, 'world'];
+            const res = _.dropWhile(data, _.isNumber);
+            expect(res).to.deep.equal(['hello', 4, 'world']);
+        });
+    });
+
+    describe('dropRightWhile', () => {
+        it('creates a slice of array excluding elements dropped from the end while predicate returns truthy', () => {
+            const data = ['hello', 1, 'world', 2, 3, 4];
+            const res = _.dropRightWhile(data, _.isNumber);
+            expect(res).to.deep.equal(['hello', 1, 'world']);
+        });
+    });
+
+    describe('fill', () => {
+        it('fills all elements of array with value', () => {
+            const data = _.range(5);
+            _.fill(data, '*');
+            expect(data).to.deep.equal(['*', '*', '*', '*', '*']);
+        });
+
+        it('fills elements of array after start index with value', () => {
+            const data = _.range(5);
+            _.fill(data, '*', 2);
+            expect(data).to.deep.equal([0, 1, '*', '*', '*']);
+        });
+
+        it('fills elements of array after start index and before end with value', () => {
+            const data = _.range(5);
+            _.fill(data, '*', 1, 3);
+            expect(data).to.deep.equal([0, '*', '*', 3, 4]);
+        });
+
+        it('does nothing when start index >= end index', () => {
+            const data = _.range(5);
+            _.fill(data, '*', 3, 3);
+            expect(data).to.deep.equal([0, 1, 2, 3, 4]);
+            _.fill(data, '*', 3, 1);
+            expect(data).to.deep.equal([0, 1, 2, 3, 4]);
+        });
+
+        it('does nothing when invoked on string', () => {
+            const data = 'hello';
+            _.fill(data, '*');
+            expect(data).to.equal('hello');
         });
     });
 });
