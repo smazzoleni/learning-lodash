@@ -378,4 +378,41 @@ describe('Array', () => {
             expect(data).to.equal('hello');
         });
     });
+
+    describe('findIndex', () => {
+        it('returns index of element in array of primitives using value as predicate', () => {
+            const data = ['sergio', 'isabelle', 'philippe'];
+            expect(_.findIndex(data, value => value == 'sergio')).to.equal(0);
+            expect(_.findIndex(data, value => value == 'isabelle')).to.equal(1);
+            expect(_.findIndex(data, value => value == 'philippe')).to.equal(2);
+            expect(_.findIndex(data, value => value == 'rené')).to.equal(-1);
+        });
+
+        it('returns index of element in array of primitives using value as predicate (cleaner variant using _.matches)', () => {
+            const data = ['sergio', 'isabelle', 'philippe'];
+            expect(_.findIndex(data, _.matches('sergio'))).to.equal(0);
+            expect(_.findIndex(data, _.matches('isabelle'))).to.equal(1);
+            expect(_.findIndex(data, _.matches('philippe'))).to.equal(2);
+            expect(_.findIndex(data, _.matches('rené'))).to.equal(-1);
+        });
+
+        it('caution: a primitive value as a predicate does not work as Array.indexOf', () => {
+            const data = ['sergio', 'isabelle', 'philippe'];
+            expect(_.findIndex(data, 'sergio')).to.equal(-1);
+            expect(_.findIndex(data, 'isabelle')).to.equal(-1);
+            expect(_.findIndex(data, 'philippe')).to.equal(-1);
+        });
+
+        it('with pluck style, finds index of first object where value is truthy', () => {
+            const data = [
+                { firstname: 'sergio' },
+                { firstname: 'isabelle', age: 0 },
+                { firstname: 'rené', age: '' },
+                { firstname: 'filomene', age: null },
+                { firstname: 'philippe', age: 33 },
+            ];
+
+            expect(_.findIndex(data, 'age')).to.equal(4);
+        });
+    });
 });
