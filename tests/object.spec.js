@@ -33,4 +33,22 @@ describe('Object', () => {
             });
         });
     });
+
+    describe('flatMap', () => {
+        it('Creates a flattened array of values by running each element in collection thru iteratee and flattening the mapped results', () => {
+            const data = [
+                {
+                    name: 'sergio',
+                    amounts: [100, 200],
+                },
+                {
+                    name: 'isabelle',
+                    amounts: [500, 600],
+                },
+            ];
+
+            const allAmounts = _.flatMap(data, 'amounts');
+            expect(allAmounts).to.deep.equal([100, 200, 500, 600]);
+        });
+    });
 });
