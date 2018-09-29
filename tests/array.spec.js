@@ -415,4 +415,344 @@ describe('Array', () => {
             expect(_.findIndex(data, 'age')).to.equal(4);
         });
     });
+
+    describe('flatten', () => {
+        it('flattens array a single level deep', () => {
+            const data = [[1, 2, 3], [4, 5]];
+            expect(_.flatten(data)).to.deep.equal([1, 2, 3, 4, 5]);
+        });
+
+        it('empty arrays are ignored', () => {
+            const data = [[1, 2, 3], [], [4, 5]];
+            expect(_.flatten(data)).to.deep.equal([1, 2, 3, 4, 5]);
+        });
+
+        it('single values are processed as array of one element', () => {
+            const data = [[1, 2], 3, [4, 5]];
+            expect(_.flatten(data)).to.deep.equal([1, 2, 3, 4, 5]);
+        });
+    });
+
+    describe('flatterDeep', () => {
+        it('recursively flattens array', () => {
+            const data = [1, [2, 3, [], [[4]], 5]];
+            expect(_.flattenDeep(data)).to.deep.equal([1, 2, 3, 4, 5]);
+        });
+    });
+
+    describe('fromPairs', () => {
+        it('returns an object composed from key-value pairs', () => {
+            const keyValuePairs = [
+                ['firstname', 'sergio'],
+                ['lastname', 'mazzoleni'],
+                ['birthdate', '04/09/1973'],
+            ];
+            expect(_.fromPairs(keyValuePairs)).to.deep.equal({
+                firstname: 'sergio',
+                lastname: 'mazzoleni',
+                birthdate: '04/09/1973',
+            });
+        });
+
+        it('extra values are ignored', () => {
+            const keyValuePairs = [
+                ['firstname', 'sergio', 'some', 'extra', 'value'],
+            ];
+            expect(_.fromPairs(keyValuePairs)).to.deep.equal({
+                firstname: 'sergio',
+            });
+        });
+
+        it('returns empty object from empty string', () => {
+            expect(_.fromPairs([])).to.deep.equal({});
+        });
+
+        it('key with undefined value is present in result object', () => {
+            const keyValuePairs = [['birthdate', undefined]];
+            expect(_.fromPairs(keyValuePairs)).to.deep.equal({
+                birthdate: undefined,
+            });
+        });
+
+        it('key with no value is present in result object', () => {
+            const keyValuePairs = [['birthdate']];
+            expect(_.fromPairs(keyValuePairs)).to.deep.equal({
+                birthdate: undefined,
+            });
+        });
+
+        it('undefine key with value is present in result object ', () => {
+            const keyValuePairs = [[undefined, 'some value']];
+            expect(_.fromPairs(keyValuePairs)).to.deep.equal({
+                undefined: 'some value',
+            });
+        });
+
+        it('strings are seen as char arrays, so first char is key, second char is value and other are ignored', () => {
+            const keyValuePairs = ['hello', 'bonjour', 'salut'];
+            expect(_.fromPairs(keyValuePairs)).to.deep.equal({
+                h: 'e',
+                b: 'o',
+                s: 'a',
+            });
+        });
+
+        it('when duplicate keys, last value wins', () => {
+            const keyValuePairs = [
+                ['firstname', 'sergio'],
+                ['firstname', 'isabelle'],
+            ];
+            expect(_.fromPairs(keyValuePairs)).to.deep.equal({
+                firstname: 'isabelle',
+            });
+        });
+
+        it('non string keys are stringified', () => {
+            const keyValuePairs = [[{ a: 1 }, 'sergio']];
+            expect(_.fromPairs(keyValuePairs)).to.deep.equal({
+                '[object Object]': 'sergio',
+            });
+        });
+    });
+
+    describe('head / first', () => {
+        it('returns first element of an array', () => {
+            const data = ['sergio', 'isabelle', 'philippe'];
+            expect(_.head(data)).to.equal('sergio');
+        });
+
+        it('same result can be achieved with ES6 destructuring', () => {
+            const data = ['sergio', 'isabelle', 'philippe'];
+            const [first] = data;
+            expect(first).to.equal('sergio');
+        });
+
+        it('return undefined if array is empty', () => {
+            expect(_.head([])).to.be.undefined;
+        });
+
+        it('return undefined if array is null or undefined', () => {
+            expect(_.head(null)).to.be.undefined;
+            expect(_.head(undefined)).to.be.undefined;
+        });
+
+        it('return first char if argument is a string', () => {
+            expect(_.head('hello')).to.equal('h');
+        });
+
+        it('return undefined if argument is an object', () => {
+            expect(_.head({ a: 1 })).to.be.undefined;
+        });
+    });
+
+    describe('indexOf', () => {
+        it('gets the index at which the first occurrence of value is found in array using SameValueZero for equality comparisons', () => {
+            const data = [
+                'sergio',
+                'isabelle',
+                'philippe',
+                'caroline',
+                'christophe',
+                'pascal',
+            ];
+            expect(_.indexOf(data, 'philippe')).to.equal(2);
+        });
+
+        it('returns -1 if value can not be found', () => {
+            const data = ['sergio', 'isabelle', 'philippe'];
+            expect(_.indexOf(data, 'christophe')).to.equal(-1);
+        });
+
+        it('fromIndex can be specified (default is zero)', () => {
+            const data = [
+                'isabelle',
+                'sergio',
+                'philippe',
+                'caroline',
+                'sergio',
+                'christophe',
+                'pascal',
+            ];
+            expect(_.indexOf(data, 'sergio')).to.equal(1);
+            expect(_.indexOf(data, 'sergio', 0)).to.equal(1);
+            expect(_.indexOf(data, 'sergio', 1)).to.equal(1);
+            expect(_.indexOf(data, 'sergio', 2)).to.equal(4);
+            expect(_.indexOf(data, 'sergio', 6)).to.equal(-1);
+        });
+
+        it('negative fromIndex can be specified as offset from the end of array', () => {
+            const data = [
+                'isabelle',
+                'sergio',
+                'philippe',
+                'caroline',
+                'sergio',
+                'christophe',
+                'pascal',
+            ];
+            expect(_.indexOf(data, 'sergio', -2)).to.equal(-1);
+            expect(_.indexOf(data, 'sergio', -3)).to.equal(4);
+            expect(_.indexOf(data, 'sergio', -5)).to.equal(4);
+            expect(_.indexOf(data, 'sergio', -6)).to.equal(1);
+        });
+    });
+
+    describe('initial', () => {
+        it('gets all but last element in array', () => {
+            const data = ['sergio', 'isabelle', 'philippe', 'rené'];
+            expect(_.initial(data)).to.deep.equal([
+                'sergio',
+                'isabelle',
+                'philippe',
+            ]);
+        });
+
+        it('returns empty array when argument is array with length 1', () => {
+            expect(_.initial(['one'])).to.be.an('array').that.is.empty;
+        });
+
+        it('returns empty array when argument is empty array', () => {
+            expect(_.initial([])).to.be.an('array').that.is.empty;
+        });
+
+        it('returns empty array when argument is null or undefined', () => {
+            expect(_.initial(null)).to.be.an('array').that.is.empty;
+            expect(_.initial(undefined)).to.be.an('array').that.is.empty;
+            expect(_.initial()).to.be.an('array').that.is.empty;
+        });
+
+        it('returns array of chars when argument is a string', () => {
+            expect(_.initial('hello')).to.deep.equal(['h', 'e', 'l', 'l']);
+        });
+    });
+
+    describe('intersection', () => {
+        it('creates an array of unique values that are included in all given arrays', () => {
+            expect(_.intersection([1, 4, 7, 10], [2, 4, 8, 10])).to.deep.equal([
+                4,
+                10,
+            ]);
+        });
+
+        it('order is determined by first array', () => {
+            const array1 = [1, 2, 3, 4, 5];
+            const array2 = [7, 6, 5, 4, 3];
+            expect(_.intersection(array1, array2)).to.deep.equal([3, 4, 5]);
+            expect(_.intersection(array2, array1)).to.deep.equal([5, 4, 3]);
+        });
+
+        it('does not work on strings', () => {
+            expect(_.intersection('hello', 'world')).to.be.an('array').that.is
+                .empty;
+        });
+    });
+
+    describe('join', () => {
+        it('converts all elements in array into a string separated by separator', () => {
+            const data = ['sergio', 'isabelle', 'philippe'];
+            expect(_.join(data, ' - ')).to.equal(
+                'sergio - isabelle - philippe',
+            );
+        });
+
+        it('comma (,) is default separator', () => {
+            const data = ['sergio', 'isabelle', 'philippe'];
+            expect(_.join(data)).to.equal('sergio,isabelle,philippe');
+        });
+    });
+
+    describe('last', () => {
+        it('returns last element of an array', () => {
+            const data = ['sergio', 'isabelle', 'philippe'];
+            expect(_.last(data)).to.equal('philippe');
+        });
+
+        it('return undefined if array is empty', () => {
+            expect(_.last([])).to.be.undefined;
+        });
+
+        it('return undefined if array is null or undefined', () => {
+            expect(_.last(null)).to.be.undefined;
+            expect(_.last(undefined)).to.be.undefined;
+        });
+
+        it('return last char if argument is a string', () => {
+            expect(_.last('hello')).to.equal('o');
+        });
+
+        it('return undefined if argument is an object', () => {
+            expect(_.last({ a: 1 })).to.be.undefined;
+        });
+    });
+
+    describe('nth', () => {
+        it('gets the element at index n of array. If n is negative', () => {
+            const data = ['a', 'b', 'c', 'd', 'e', 'f'];
+            expect(_.nth(data, 2)).to.equal('c');
+        });
+
+        it('negative index returns nth element from the end of array', () => {
+            const data = ['a', 'b', 'c', 'd', 'e', 'f'];
+            expect(_.nth(data, -1)).to.equal('f');
+            expect(_.nth(data, -3)).to.equal('d');
+        });
+
+        it('returns undefined if index is out of bounds', () => {
+            const data = ['a', 'b', 'c', 'd', 'e', 'f'];
+            expect(_.nth(data, 6)).to.be.undefined;
+            expect(_.nth(data, -7)).to.be.undefined;
+        });
+
+        it('can be used with strings', () => {
+            expect(_.nth('bonjour', 3)).to.equal('j');
+        });
+    });
+
+    describe('pull', () => {
+        it('removes values from array, mutating original array', () => {
+            const data = ['a', 'b', 'a', 'c', 'd', 'e', 'c', 'f'];
+            _.pull(data, 'a', 'c', 'f');
+            expect(data).to.deep.equal(['b', 'd', 'e']);
+        });
+
+        it('returns reference to original array', () => {
+            const data = ['a', 'b', 'a', 'c', 'd', 'e', 'c', 'f'];
+            expect(_.pull(data, 'a', 'c', 'f')).to.equal(data);
+        });
+
+        it('cannot be used with strings as strings are readonly', () => {
+            // expect(() => _.pull('bonjour', 'o')).to.throw(AssertionError);
+            expect(() => _.pull('bonjour', 'o')).to.throw(
+                'Cannot assign to read only property',
+            );
+        });
+    });
+
+    describe('pullAll', () => {
+        it('same as pull, except it accepts an array of values', () => {
+            const data = ['a', 'b', 'a', 'c', 'd', 'e', 'c', 'f'];
+            _.pullAll(data, ['a', 'c', 'f']);
+            expect(data).to.deep.equal(['b', 'd', 'e']);
+        });
+    });
+
+    describe('pullAt', () => {
+        it('removes elements corresponding to indexes', () => {
+            const data = ['a', 'b', 'c', 'd', 'e', 'f'];
+            _.pullAt(data, 3);
+            expect(data).to.deep.equal(['a', 'b', 'c', 'e', 'f']);
+        });
+
+        it('indexes can be one or several indexes', () => {
+            const data = ['a', 'b', 'c', 'd', 'e', 'f'];
+            _.pullAt(data, 3, 4);
+            expect(data).to.deep.equal(['a', 'b', 'c', 'f']);
+        });
+
+        it('indexes can be one or several arrays of indexes', () => {
+            const data = ['a', 'b', 'c', 'd', 'e', 'f'];
+            _.pullAt(data, [3, 4], [1, 2]);
+            expect(data).to.deep.equal(['a', 'f']);
+        });
+    });
 });
