@@ -28,58 +28,6 @@ describe('Array', () => {
                 ['l', 'd'],
             ]);
         });
-
-        // test pass but skipped for fastest execution
-        it.skip('can be used to split expensive operations', done => {
-            const logs = [];
-            let finished = false;
-
-            function doExpensiveWork(chunk) {
-                const millisByItem = 10;
-                const minimalDuration = _.size(chunk) * millisByItem;
-                const start = new Date().valueOf();
-
-                while (new Date().valueOf() - start < minimalDuration) {}
-                const duration = new Date().valueOf() - start;
-            }
-
-            function processChunk(chunks, index) {
-                const chunk = _.nth(chunks, index);
-                if (_.isUndefined(chunk)) {
-                    finished = true;
-                    expect(logs).to.deep.equal([
-                        'chunk 0',
-                        'refresh',
-                        'chunk 1',
-                        'refresh',
-                        'chunk 2',
-                        'refresh',
-                        'chunk 3',
-                        'refresh',
-                        'chunk 4',
-                        'refresh',
-                    ]);
-                    done();
-                    return;
-                }
-                logs.push(`chunk ${index}`);
-                doExpensiveWork(chunk);
-                _.defer(() => processChunk(chunks, ++index));
-            }
-
-            const intervalHandle = setInterval(() => {
-                logs.push(`refresh`);
-                // console.log('refresh user interface');
-                if (finished) {
-                    clearInterval(intervalHandle);
-                }
-            }, 20);
-
-            const data = _.range(50);
-            const chunks = _.chunk(data, 10);
-
-            processChunk(chunks, 0);
-        });
     });
 
     describe('compact', () => {
@@ -753,6 +701,95 @@ describe('Array', () => {
             const data = ['a', 'b', 'c', 'd', 'e', 'f'];
             _.pullAt(data, [3, 4], [1, 2]);
             expect(data).to.deep.equal(['a', 'f']);
+        });
+    });
+
+    describe('remove', () => {
+        it('mutates array by removing elements according predicate', () => {
+            const data = ['a', 'b', 'a', 'c', 'd', 'e', 'a', 'f'];
+            _.remove(data, l => l === 'a');
+            expect(data).to.deep.equal(['b', 'c', 'd', 'e', 'f']);
+        });
+
+        it('returns new array of removed elments array', () => {
+            const data = ['a', 'b', 'a', 'c', 'd', 'e', 'a', 'f'];
+            expect(_.remove(data, l => l === 'a')).to.deep.equal([
+                'a',
+                'a',
+                'a',
+            ]);
+        });
+
+        it('default predicate is identity', () => {
+            const data = ['a', undefined, 'b', null, 'c', false, 'd', 0, 'e'];
+            _.remove(data);
+            expect(data).to.deep.equal([undefined, null, false, 0]);
+        });
+    });
+
+    describe('reverse', () => {
+        it('invert order of elements in array (mutation)', () => {
+            const data = ['a', 'b', 'c'];
+            _.reverse(data);
+            expect(data).to.deep.equal(['c', 'b', 'a']);
+        });
+
+        it('returns mutated array', () => {
+            const data = ['a', 'b', 'c'];
+            expect(_.reverse(data)).to.equal(data);
+        });
+    });
+
+    describe('slice', () => {
+        it('creates a slice from array from start up to (not included) end', () => {
+            const data = ['a', 'b', 'c', 'd', 'e', 'f'];
+            expect(_.slice(data, 1, 4)).to.deep.equal(['b', 'c', 'd']);
+        });
+
+        it('end is array length by default', () => {
+            const data = ['a', 'b', 'c', 'd', 'e', 'f'];
+            expect(_.slice(data, 4)).to.deep.equal(['e', 'f']);
+        });
+
+        it('when no start and no end, same as cloning array', () => {
+            const data = ['a', 'b', 'c', 'd', 'e', 'f'];
+            const cloned = _.slice(data);
+            expect(cloned, 'same element').to.deep.equal(data);
+            expect(cloned, 'different instance').to.not.equal(data);
+        });
+    });
+
+    describe('sortedIndex', () => {
+        it('uses a binary search to determine the lowest index at which value should be inserted into array in order to maintain its sort order', () => {
+            const data = ['a', 'b', 'c', 'e', 'f'];
+            expect(_.sortedIndex(data, 'd')).to.equal(3);
+        });
+
+        it('return LOWEST index at which value should be inserted into array in order to maintain its sort order', () => {
+            const data = ['a', 'b', 'c', 'd', 'd', 'e', 'f'];
+            expect(_.sortedIndex(data, 'd')).to.equal(3);
+        });
+
+        it('no sense when array is not ordered, result is meaningless', () => {
+            const data = ['c', 'b', 'g', 'a', 'c', 'a', 'f'];
+            expect(_.sortedIndex(data, 'd')).to.equal(6);
+        });
+    });
+
+    describe('sortedIndexOf', () => {
+        it('returns index of value by performing a binary search on a sorted array', () => {
+            const data = ['a', 'b', 'c', 'd', 'e', 'f'];
+            expect(_.sortedIndexOf(data, 'c')).to.equal(2);
+        });
+
+        it('returns FIRST index of value', () => {
+            const data = ['a', 'b', 'c', 'd', 'd', 'd', 'd', 'e', 'f'];
+            expect(_.sortedIndexOf(data, 'd')).to.equal(3);
+        });
+
+        it('returns -1 if value is not found', () => {
+            const data = ['a', 'b', 'c', 'd', 'e', 'f'];
+            expect(_.sortedIndexOf(data, 'z')).to.equal(-1);
         });
     });
 });
